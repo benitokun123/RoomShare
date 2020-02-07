@@ -42,11 +42,11 @@ public enum HelpMessage {
                 "Or you can key in the information in any different order and write date in short form:\n" +
                 "add &next tues 16:00 -product evaluation #meeting ^2 hours";
         public static final String HELP_MENU = "Here are a list of commands you can input:\n" +
-                "add\t\t\t\t\tdelete\t\t\t\tupdate\n" +
+                "add\t\t\t\tdelete\t\t\t\tupdate\n" +
                 "restore\t\t\t\tsnooze\t\t\t\tdone\n" +
                 "list\t\t\t\tfind\t\t\t\tsort\n" +
                 "show\t\t\t\toverdue\t\t\t\tsubtask\n" +
-                "removeoverdue\t\treschedule\t\t\tbye\n" +
+                "removeoverdue\t\t\treschedule\t\t\tbye\n" +
                 "bye\n" +
                 "To know more about the commands, type help \"command\". Example: help add";
         public static final String HELP_DELETE = "This command deletes the tasks at the specified order number.\n" +

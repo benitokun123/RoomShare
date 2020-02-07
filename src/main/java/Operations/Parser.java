@@ -136,6 +136,8 @@ public class Parser {
             date = this.formatDateTomorrowToday(by);
         } else if (this.formatDateByDay(by) != null) {
             date = this.formatDateByDay(by);
+        } else if (this.formatDateDDMMYYAM(by) != null) {
+            date = this.formatDateDDMMYYAM(by);
         } else {
             date = this.formatDateDDMMYY(by);
         }
@@ -159,6 +161,25 @@ public class Parser {
             return date;
         } catch (ParseException | IndexOutOfBoundsException | IllegalArgumentException e2) {
             throw new RoomShareException(ExceptionType.wrongDateFormat);
+        }
+    }
+
+    /**
+     * Returns a Date object from a raw date that is stored as a String in a DD/MM/YYYY HH:MM AM format.
+     * If the format of the input string is unacceptable, will throw a DukeException and will not return anything.
+     * @param by Input String containing the date information.
+     * @return A Date object containing the appropriately formatted date.
+     * @throws RoomShareException If by is not in dd/MM/yyyy HH:mm format
+     */
+    public Date formatDateDDMMYYAM(String by) throws RoomShareException {
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mma");
+            format.setLenient(false);
+            Date date = format.parse(by);
+            date.setSeconds(0);
+            return date;
+        } catch (ParseException | IndexOutOfBoundsException | IllegalArgumentException e2) {
+            return null;
         }
     }
 

@@ -3,6 +3,7 @@ package Model_Classes;
 import CustomExceptions.RoomShareException;
 import Enums.ExceptionType;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -70,6 +71,7 @@ public class Assignment extends Task {
      */
     @Override
     public String toString() {
-        return "[A]" + super.toString() + " (by: " + super.getDate() + ")";
+        SimpleDateFormat f = new SimpleDateFormat("dd MMM yyyy hh:mma");
+        return "[A]" + super.toString() + " (by: " + f.format(super.getDate()) + ")";
     }
 }

@@ -1,5 +1,6 @@
 package Model_Classes;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -73,7 +74,8 @@ public class Leave extends Task {
      */
     @Override
     public String toString() {
-        return "[L] " + super.getDescription() + " (" + user + ")" + " (From: " + from + " To: " + to + ")";
+        SimpleDateFormat f = new SimpleDateFormat("dd MMMM yyyy hh:mma");
+        return "[L] " + super.getDescription() + " (" + user + ")" + " (From: " + f.format(from) + " To: " + f.format(to) + ")";
     }
 
     /**
@@ -82,6 +84,14 @@ public class Leave extends Task {
      */
     public void setUser(String user) {
         this.user = user;
+    }
+
+    /**
+     * getter for user.
+     * @return the name of the user for the leave
+     */
+    public String getUser() {
+        return this.user;
     }
 
 }

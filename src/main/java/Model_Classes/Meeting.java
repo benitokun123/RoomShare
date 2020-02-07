@@ -1,6 +1,8 @@
 package Model_Classes;
 
 import Enums.TimeUnit;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -42,11 +44,12 @@ public class Meeting extends Task {
      */
     @Override
     public String toString() {
+        SimpleDateFormat f = new SimpleDateFormat("dd MMM yyyy hh:mma");
         if (this.isFixedDuration()) {
-            return "[M]" + super.toString() + " (on: " + super.getDate()
+            return "[M]" + super.toString() + " (on: " + f.format(super.getDate())
                     + ") (duration: " + duration + " " + timeUnit.toString() + ")";
         } else {
-            return "[M]" + super.toString() + " (on: " + super.getDate() + ")";
+            return "[M]" + super.toString() + " (on: " + f.format(super.getDate()) + ")";
         }
     }
 

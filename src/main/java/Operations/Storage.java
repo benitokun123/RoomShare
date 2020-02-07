@@ -15,6 +15,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.json.JSONObject;
+import org.json.JSONArray;
+
 /**
  * Performs storage operations such as writing and reading from a .txt file.
  */
@@ -25,6 +28,51 @@ public class Storage {
      */
     public Storage() {
     }
+
+    private JSONObject convertTaskToJSONObject (Task task) {
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("type","as");
+        jsonObject.put("description", task.getDescription());
+        jsonObject.put("isDone", task.getDone());
+        jsonObject.put("date", task.getDate());
+        jsonObject.put("priority", task.getPriority());
+        jsonObject.put("assignee", task.getAssignee());
+        jsonObject.put("recurrence", task.getRecurrenceSchedule());
+        jsonObject.put("hasRecurring", task.hasRecurring());
+        jsonObject.put("overdue", task.getOverdue());
+
+        if (task instanceof Assignment) {
+            jsonObject.put("subTask", ((Assignment) task).getSubTasks());
+        } else if (task instanceof Meeting) {
+            jsonObject.put("duration", ((Meeting) task).getDuration());
+            jsonObject.put("timeUnit", ((Meeting) task).getTimeUnit());
+        } else if (task instanceof Leave) {
+            jsonObject.put("user", ((Leave) task).getUser());
+            jsonObject.put("start", ((Leave) task).getStartDate());
+            jsonObject.put("end", ((Leave) task).getEndDate());
+        }
+        return jsonObject;
+    }
+
+    private JSONArray convertListToJSONArray(ArrayList<Task> list) {
+        JSONArray jsonArray = new JSONArray();
+        for (Task t: list) {
+            jsonArray.put(list);
+        }
+        return jsonArray;
+    }
+
+    public void writeJSONFile(ArrayList<Task> list, String fileName) {
+        JSONArray JSONList = convertListToJSONArray(list);
+        try (FileWriter file = new FileWriter(fileName)) {
+            file.write(JSONList.toString());
+            file.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * Returns an ArrayList of Tasks from a .txt file.

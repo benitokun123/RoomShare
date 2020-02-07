@@ -86,11 +86,11 @@ public class RoomShare {
 
             case bye:
                 isExit = true;
-                try {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
-                } catch (RoomShareException e) {
-                    ui.showError(e);
-                }
+//                try {
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
+//                } catch (RoomShareException e) {
+//                    ui.showError(e);
+//                }
                 try {
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 } catch (RoomShareException e) {
@@ -121,7 +121,7 @@ public class RoomShare {
                 } catch (RoomShareException e) {
                     ui.showError(e);
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 listRoutine.list();
@@ -138,7 +138,7 @@ public class RoomShare {
                 } catch (RoomShareException e) {
                     ui.showError(e);
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 listRoutine.list();
@@ -172,7 +172,7 @@ public class RoomShare {
                 } catch (RoomShareException e) {
                     ui.showError(e);
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 listRoutine.list();
@@ -201,7 +201,7 @@ public class RoomShare {
                         TaskList.sortTasks();
                         ui.prioritySet();
                     }
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 listRoutine.list();
@@ -217,7 +217,7 @@ public class RoomShare {
                 } catch (RoomShareException | DuplicateException | TimeClashException e) {
                     ui.showError(e);
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 listRoutine.list();
@@ -239,7 +239,7 @@ public class RoomShare {
                 } catch (RoomShareException e) {
                     ui.showError(e);
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 listRoutine.list();
@@ -257,7 +257,7 @@ public class RoomShare {
                 } catch (RoomShareException e) {
                     ui.showError(e);;
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 listRoutine.list();
@@ -274,7 +274,7 @@ public class RoomShare {
                 } catch (RoomShareException e) {
                     ui.showError(e);
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 listRoutine.list();
@@ -292,7 +292,7 @@ public class RoomShare {
                 } catch (RoomShareException e) {
                     ui.showError(e);
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 listRoutine.list();
@@ -309,7 +309,7 @@ public class RoomShare {
                     ui.showError(e);
                     sortType = SortType.priority;
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 TaskList.changeSort(sortType);
@@ -327,7 +327,7 @@ public class RoomShare {
                 } catch (RoomShareException e) {
                     ui.showError(e);
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 break;
@@ -369,12 +369,12 @@ public class RoomShare {
                           ui.showUpdated(indexes[0] + 1);
                       }
                     overdueList.reschedule(indexes, taskList);
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 } catch (RoomShareException e) {
                     ui.showError(e);
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 listRoutine.list();
@@ -402,7 +402,7 @@ public class RoomShare {
                 } catch (RoomShareException e) {
                     ui.showError(e);
                 } finally {
-                    storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                    storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 }
                 break;
@@ -418,7 +418,7 @@ public class RoomShare {
                 } catch (RoomShareException e) {
                     ui.showError(e);
                 }
-                storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                 storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 listRoutine.list();
                 ui.showDoneList();
@@ -430,7 +430,7 @@ public class RoomShare {
                 ui.startUp();
                 ui.showError(new RoomShareException(ExceptionType.invalidCommand));
                 listRoutine.list();
-                storage.writeFile(TaskList.getCurrentList(), "data.txt");
+                storage.writeJSONFile(TaskList.getCurrentList(), "data.json");
                 try {
                     storage.writeFile(OverdueList.getOverdueList(), "overdue.txt");
                 } catch (RoomShareException e) {

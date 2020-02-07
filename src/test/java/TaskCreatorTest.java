@@ -19,12 +19,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TaskCreatorTest {
     private static TaskCreator taskCreator = new TaskCreator();
-    private static String input1 = "add #meeting# (description) &22/12/2019 18:00& *high* %week% " +
-            "@john@ ^2 hours^ !R!";
-    private static String input2 = "add #meeting# (description) &23/12/2019 18:00&";
-    private static String input3 = "add #leave# (description) &24/12/2019 18:00&25/12/2019 18:00& @Harry@";
-    private static String updates = "update 1 (another description) &22/12/2020 19:00& *medium* %day% " +
-            "@bob@ ^120 minutes^";
+    private static String input1 = "add #meeting -description &22/12/2019 18:00 *high %week " +
+            "@john 2 ^hours !R";
+    private static String input2 = "add #meeting -description &23/12/2019 18:00";
+    private static String input3 = "add #leave -description &24/12/2019 18:00&25/12/2019 18:00 @Harry";
+    private static String updates = "update 1 -another description &22/12/2020 19:00 *medium %day " +
+            "@bob ^120 minutes";
 
     @Test
     void extractDescription() {
