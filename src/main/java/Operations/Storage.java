@@ -14,9 +14,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.jar.JarEntry;
 
-import org.json.JSONObject;
-import org.json.JSONArray;
+import org.json.simple.*;
 
 /**
  * Performs storage operations such as writing and reading from a .txt file.
@@ -29,16 +29,16 @@ public class Storage {
     public Storage() {
     }
 
-    private JSONObject convertTaskToJSONObject (Task task) {
-        JSONObject jsonObject = new JSONObject();
+    private JsonObject convertTaskToJSONObject (Task task) {
+        JsonObject jsonObject = new JsonObject();
 
         jsonObject.put("type","as");
         jsonObject.put("description", task.getDescription());
         jsonObject.put("isDone", task.getDone());
-        jsonObject.put("date", task.getDate());
-        jsonObject.put("priority", task.getPriority());
+        jsonObject.put("date", task.getDate().toString());
+        jsonObject.put("priority", task.getPriority().toString());
         jsonObject.put("assignee", task.getAssignee());
-        jsonObject.put("recurrence", task.getRecurrenceSchedule());
+        jsonObject.put("recurrence", task.getRecurrenceSchedule().toString());
         jsonObject.put("hasRecurring", task.hasRecurring());
         jsonObject.put("overdue", task.getOverdue());
 
@@ -46,32 +46,43 @@ public class Storage {
             jsonObject.put("subTask", ((Assignment) task).getSubTasks());
         } else if (task instanceof Meeting) {
             jsonObject.put("duration", ((Meeting) task).getDuration());
-            jsonObject.put("timeUnit", ((Meeting) task).getTimeUnit());
+            jsonObject.put("timeUnit", ((Meeting) task).getTimeUnit().toString());
         } else if (task instanceof Leave) {
             jsonObject.put("user", ((Leave) task).getUser());
-            jsonObject.put("start", ((Leave) task).getStartDate());
-            jsonObject.put("end", ((Leave) task).getEndDate());
+            jsonObject.put("start", ((Leave) task).getStartDate().toString());
+            jsonObject.put("end", ((Leave) task).getEndDate().toString());
         }
         return jsonObject;
     }
 
-    private JSONArray convertListToJSONArray(ArrayList<Task> list) {
-        JSONArray jsonArray = new JSONArray();
+    private JsonArray convertListToJSONArray(ArrayList<Task> list) {
+        JsonArray jsonArray = new JsonArray();
         for (Task t: list) {
-            jsonArray.put(list);
+            jsonArray.add(convertTaskToJSONObject(t));
         }
         return jsonArray;
     }
 
-    public void writeJSONFile(ArrayList<Task> list, String fileName) {
-        JSONArray JSONList = convertListToJSONArray(list);
+    public void writeJSONFile(ArrayList<Task> list, String fileName) throws RoomShareException{
+        JsonArray JSONList = convertListToJSONArray(list);
         try (FileWriter file = new FileWriter(fileName)) {
-            file.write(JSONList.toString());
-            file.flush();
+            Jsoner.serializeStrictly(JSONList,file);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RoomShareException(ExceptionType.writeError);
         }
     }
+
+    public ArrayList<Task> loadJSONFile(String fileName) {
+        ArrayList<Task> list  = new ArrayList<>();
+        try (FileReader file  = new FileReader(fileName)) {
+            JsonArray JSONList = Jsoner.deserializeMany(file);
+            JSONList.asCollection(list);
+        } catch (DeserializationException | IOException e) {
+            System.out.println("error in loading file: date format error");
+        }
+        return list;
+    }
+
 
 
     /**

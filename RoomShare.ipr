@@ -35,9 +35,9 @@
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="json-20190722">
+    <library name="json-simple-2.3.0">
       <CLASSES>
-        <root url="jar://$USER_HOME$/Downloads/json-20190722.jar!/" />
+        <root url="jar://$PROJECT_DIR$/json-simple-2.3.0.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

@@ -11,11 +11,11 @@ public class RoomShareException extends Exception {
     private static final String WRONG_FORMAT_TEXT = "\tWrong Format Detected\n";
     private static final String WRONG_PRIORITY_TEXT = "\tYou've entered wrong format of priority\n";
     private static final String SUB_TASK_TEXT = "\tOnly Assignments are supported with Subtasks\n";
-    private static final String WRONG_TASK_TYPE_TEXT = "\tOnly meeting, assignment, or leave tag are accepted\n";
+    private static final String WRONG_TASK_TYPE_TEXT = "\tOnly meeting(mt), assignment(as), or leave(lv) tag are accepted\n";
     private static final String EMPTY_DESCRIPTION_TEXT = "\tYou haven't included the description of you task\n";
     private static final String EMPTY_DATE_TEXT = "\tYou haven't included the date of your task\n";
     private static final String EMPTY_USER_TEXT = "\tYou haven't included the user of your task\n";
-    private static final String EMPTY_TASK_TYPE_TEXT = "\tYou haven't specified the type of your task: assignment, meeting, or leave\n";
+    private static final String EMPTY_TASK_TYPE_TEXT = "\tYou haven't specified the type of your task: assignment(as), meeting(mt), or leave(lv)\n";
     private static final String WRITE_ERROR_TEXT = "\tError in writing file, cancelling write process...\n";
     private static final String WRONG_INDEX_FORMAT_TEXT = "\tThe index you've enter is in the wrong format\n";
     private static final String WRONG_TIME_FORMAT_TEXT = "\tYou've entered an invalid time format\n";
