@@ -1,5 +1,7 @@
 package Model_Classes;
 
+import Enums.Priority;
+import Enums.RecurrenceScheduleType;
 import Enums.TimeUnit;
 
 import java.text.SimpleDateFormat;
@@ -22,6 +24,12 @@ public class Meeting extends Task {
         super(description, at);
         this.duration = 0;
         this.timeUnit = TimeUnit.unDefined;
+    }
+
+    public Meeting(String description, boolean isDone, Date date,
+                Priority priority, String assignee, boolean hasRecurring,
+                boolean isOverdue, RecurrenceScheduleType recurrence) {
+        super(description,isDone,date,priority,assignee,hasRecurring,isOverdue,recurrence);
     }
 
     /**

@@ -2,6 +2,8 @@ package Model_Classes;
 
 import CustomExceptions.RoomShareException;
 import Enums.ExceptionType;
+import Enums.Priority;
+import Enums.RecurrenceScheduleType;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,12 +22,18 @@ public class Assignment extends Task {
 
     /**
      * Constructor for the Assignment object.
-     * Takes in inputs for description and date/time the tasks should be done by.
+     * Takes in inputs for description and date/time the tasks should be done date.
      * @param description Description of the task
-     * @param by The time the tasks should be done by.
+     * @param date The time the tasks should be done date.
      */
-    public Assignment(String description, Date by) {
-        super(description, by);
+    public Assignment(String description, Date date) {
+        super(description, date);
+    }
+
+    public Assignment(String description, boolean isDone, Date date,
+                Priority priority, String assignee, boolean hasRecurring,
+                boolean isOverdue, RecurrenceScheduleType recurrence) {
+        super(description,isDone,date,priority,assignee,hasRecurring,isOverdue,recurrence);
     }
 
     /**

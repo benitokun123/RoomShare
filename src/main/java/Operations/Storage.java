@@ -14,7 +14,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.jar.JarEntry;
 
 import org.json.simple.*;
 
@@ -29,13 +28,18 @@ public class Storage {
     public Storage() {
     }
 
-    private JsonObject convertTaskToJSONObject (Task task) {
+    /**
+     * Convert a Task to a JsonObject which cab be serialized by Jsoner.
+     * @param task the task to be converted
+     * @return the JsonObject version of a task
+     */
+    private JsonObject convertTaskToJsonObject(Task task) {
+        SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy hh:mma");
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.put("type","as");
         jsonObject.put("description", task.getDescription());
         jsonObject.put("isDone", task.getDone());
-        jsonObject.put("date", task.getDate().toString());
+        jsonObject.put("date", f.format(task.getDate()));
         jsonObject.put("priority", task.getPriority().toString());
         jsonObject.put("assignee", task.getAssignee());
         jsonObject.put("recurrence", task.getRecurrenceSchedule().toString());
@@ -43,11 +47,14 @@ public class Storage {
         jsonObject.put("overdue", task.getOverdue());
 
         if (task instanceof Assignment) {
+            jsonObject.put("type","as");
             jsonObject.put("subTask", ((Assignment) task).getSubTasks());
         } else if (task instanceof Meeting) {
+            jsonObject.put("type","mt");
             jsonObject.put("duration", ((Meeting) task).getDuration());
             jsonObject.put("timeUnit", ((Meeting) task).getTimeUnit().toString());
         } else if (task instanceof Leave) {
+            jsonObject.put("type","lv");
             jsonObject.put("user", ((Leave) task).getUser());
             jsonObject.put("start", ((Leave) task).getStartDate().toString());
             jsonObject.put("end", ((Leave) task).getEndDate().toString());
@@ -55,16 +62,78 @@ public class Storage {
         return jsonObject;
     }
 
-    private JsonArray convertListToJSONArray(ArrayList<Task> list) {
+    /**
+     * Convert a JsonObject to a Task which can be later addded to a task list.
+     * @param jsonObject the JsonObject to be converted
+     * @return a Task equivalent of the JsonObject
+     * @throws RoomShareException if there's any error processing the parameters of the JsonObject
+     */
+    private Task convertJsonObjectToTask(JsonObject jsonObject) throws RoomShareException{
+        SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy hh:mma");
+        String type = jsonObject.getString("type");
+        String description = jsonObject.getString("description");
+        boolean isDone = jsonObject.getBoolean("isDone");
+
+        Date date;
+        try {
+            date = f.parse(jsonObject.getString("date"));
+        } catch (ParseException e) {
+            throw new RoomShareException(ExceptionType.loadError);
+        }
+
+        Priority priority = Priority.valueOf(jsonObject.getString("priority"));
+        String assignee = jsonObject.getString("assignee");
+        boolean hasRecurring = jsonObject.getBoolean("hasRecurring");
+        boolean overdue = jsonObject.getBoolean("overdue");
+        RecurrenceScheduleType recurrence = RecurrenceScheduleType.valueOf(jsonObject.getString("recurrence"));
+
+        if (type.equals("as")) {
+            ArrayList<String> subTask = (ArrayList<String>) jsonObject.get("subTask");
+            Assignment as = new Assignment(description,isDone,date,priority,assignee,hasRecurring,overdue,recurrence);
+            as.addSubTasks(subTask);
+            return as;
+        } else if (type.equals("mt")) {
+            int duration = jsonObject.getInteger("duration");
+            TimeUnit timeUnit = TimeUnit.valueOf(jsonObject.getString("timeUnit"));
+            Meeting mt = new Meeting(description,isDone,date,priority,assignee,hasRecurring,overdue,recurrence);
+            mt.setDuration(duration,timeUnit);
+            return mt;
+        } else {
+            Date start,end;
+            try {
+                start = f.parse(jsonObject.getString("start"));
+                end = f.parse(jsonObject.getString("end"));
+            } catch (ParseException e) {
+                throw new RoomShareException(ExceptionType.loadError);
+            }
+            Leave lv = new Leave(description,isDone,date,priority,assignee,hasRecurring,overdue,recurrence);
+            lv.setStartDate(start);
+            lv.setEndDate(end);
+            return lv;
+        }
+    }
+
+    /**
+     * Convert a List of Task to a JsonArray which can be serialized by Jsoner.
+     * @param list the List to be converted
+     * @return the JsonArray equivalent of the List
+     */
+    private JsonArray convertListToJsonArray(ArrayList<Task> list) {
         JsonArray jsonArray = new JsonArray();
         for (Task t: list) {
-            jsonArray.add(convertTaskToJSONObject(t));
+            jsonArray.add(convertTaskToJsonObject(t));
         }
         return jsonArray;
     }
 
+    /**
+     * Convert a Task List to a JsonArray and write it into a JSON file.
+     * @param list the List to be written
+     * @param fileName the file destination
+     * @throws RoomShareException if there's any error processing the List
+     */
     public void writeJSONFile(ArrayList<Task> list, String fileName) throws RoomShareException{
-        JsonArray JSONList = convertListToJSONArray(list);
+        JsonArray JSONList = convertListToJsonArray(list);
         try (FileWriter file = new FileWriter(fileName)) {
             Jsoner.serializeStrictly(JSONList,file);
         } catch (IOException e) {
@@ -72,234 +141,27 @@ public class Storage {
         }
     }
 
-    public ArrayList<Task> loadJSONFile(String fileName) {
-        ArrayList<Task> list  = new ArrayList<>();
+    /**
+     * Load a JSON file and convert its info into a Task List
+     * @param fileName the File to be processed
+     * @return the Task List derived from the file
+     * @throws RoomShareException if there's any error processing the file
+     */
+    public ArrayList<Task> loadJSONFile(String fileName) throws RoomShareException{
+        ArrayList<JsonObject> jsonList  = new ArrayList<>();
+        ArrayList<Task> list = new ArrayList<>();
         try (FileReader file  = new FileReader(fileName)) {
-            JsonArray JSONList = Jsoner.deserializeMany(file);
-            JSONList.asCollection(list);
+            JsonArray jsonArray = (JsonArray) Jsoner.deserialize(file);
+            for (Object object : jsonArray) {
+                jsonList.add((JsonObject) object);
+            }
+            for (JsonObject jsonObject : jsonList) {
+                list.add(convertJsonObjectToTask(jsonObject));
+            }
         } catch (DeserializationException | IOException e) {
-            System.out.println("error in loading file: date format error");
+            throw new RoomShareException(ExceptionType.loadError);
         }
         return list;
-    }
-
-
-
-    /**
-     * Returns an ArrayList of Tasks from a .txt file.
-     * Extracts the relevant information from the data.txt file in Duke to create the tasks.
-     * Populates an ArrayList with these created tasks.
-     *
-     *
-     * @return taskArrayList An ArrayList of Tasks that is created from the .txt file.
-     * @throws RoomShareException If the file has mistakes in formatting. Creates and empty task list instead and returns the empty list.
-     */
-    public ArrayList<Task> loadFile(String fileName) throws RoomShareException {
-        ArrayList<Task> taskArrayList = new ArrayList<>();
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName));
-            String line = "";
-            ArrayList<String> tempList = new ArrayList<>();
-            while ((line = bufferedReader.readLine()) != null) {
-                tempList.add(line);
-            }
-            Parser parser = new Parser();
-            for (String list : tempList) {
-                String[] temp = list.split("#");
-
-                if (temp.length > 11) {
-                    throw new RoomShareException(ExceptionType.loadError);
-                }
-                // Identify type of task
-                String scanType = temp[0].trim();
-                SaveType type;
-                try {
-                    type = SaveType.valueOf(scanType);
-                } catch (IllegalArgumentException e) {
-                    type = SaveType.empty;
-                }
-
-                String scanDone = temp[1].trim();
-                boolean done = scanDone.equals("y");
-
-                String scanPriority = temp[2].trim();
-                Priority priority;
-                try {
-                    priority = Priority.valueOf(scanPriority);
-                } catch (IllegalArgumentException e) {
-                    priority = Priority.low;
-                }
-
-                String description = temp[3].trim();
-
-                Date from = new Date();
-                Date to = new Date();
-                Date date = new Date();
-                if (temp[4].contains("-")) {
-                    String[] dateArray = temp[4].trim().split("-");
-                    String scanFromDate = dateArray[0].trim();
-                    try {
-                        from = parser.formatDateDDMMYY(scanFromDate);
-                    } catch (RoomShareException e) {
-                        System.out.println("error in loading file: date format error");
-                    }
-                    String scanToDate = dateArray[1].trim();
-                    try {
-                        to = parser.formatDateDDMMYY(scanToDate);
-                    } catch (RoomShareException e) {
-                        System.out.println("error in loading file: date format error");
-                    }
-                } else {
-                    String scanDate = temp[4].trim();
-                    try {
-                        date = parser.formatDateDDMMYY(scanDate);
-                    } catch (RoomShareException e) {
-                        System.out.println("error in loading file: date format error");
-                    }
-                }
-
-                String scanRecurrence = temp[5].trim();
-                RecurrenceScheduleType recurrence = null;
-                try {
-                    recurrence = RecurrenceScheduleType.valueOf(scanRecurrence);
-                } catch (IllegalArgumentException e) {
-                    throw new RoomShareException(ExceptionType.loadError);
-                }
-
-                String user = temp[6].trim();
-
-                String scanIsFixedDuration = temp[7].trim();
-                boolean isFixedDuration = scanIsFixedDuration.equals("F");
-
-                String scanDuration = temp[8].trim();
-                int duration = 0;
-                try {
-                    duration = Integer.parseInt(scanDuration);
-                } catch (NumberFormatException e) {
-                    throw new RoomShareException(ExceptionType.loadError);
-                }
-
-                String scanUnit = temp[9].trim();
-                TimeUnit unit = null;
-                try {
-                    unit = TimeUnit.valueOf(scanUnit);
-                } catch (IllegalArgumentException e) {
-                    throw new RoomShareException(ExceptionType.loadError);
-                }
-                String scanSubTask = "";
-                if (temp.length > 10) {
-                    scanSubTask = temp[10].trim();
-                }
-
-                if (type.equals(SaveType.A)) {
-                    // Assignment type
-                    Assignment assignment = new Assignment(description, date);
-                    assignment.setPriority(priority);
-                    assignment.setAssignee(user);
-                    assignment.setRecurrenceSchedule(recurrence);
-                    assignment.setDone(done);
-                    if (!scanSubTask.equals("")) {
-                        assignment.addSubTasks(scanSubTask);
-                    }
-                    taskArrayList.add(assignment);
-                } else if (type.equals(SaveType.L)) {
-                    //Leave type
-                    Leave leave = new Leave(description, user, from, to);
-                    leave.setPriority(priority);
-                    leave.setRecurrenceSchedule(recurrence);
-                    taskArrayList.add(leave);
-                } else {
-                    //Meeting type
-                    if (isFixedDuration) {
-                        Meeting meeting = new Meeting(description, date, duration, unit);
-                        meeting.setPriority(priority);
-                        meeting.setAssignee(user);
-                        meeting.setRecurrenceSchedule(recurrence);
-                        meeting.setDone(done);
-                        taskArrayList.add(meeting);
-                    } else {
-                        Meeting meeting = new Meeting(description, date);
-                        meeting.setRecurrenceSchedule(recurrence);
-                        meeting.setPriority(priority);
-                        meeting.setAssignee(user);
-                        meeting.setDone(done);
-                        taskArrayList.add(meeting);
-                    }
-                }
-            }
-        } catch (IOException | IndexOutOfBoundsException e) {
-            throw new RoomShareException(ExceptionType.wrongFormat);
-        }
-        return (taskArrayList);
-    }
-
-    /**
-     * Rewrites the data.txt file with a task list.
-     * Formats all task information into a style that the loadFile() method is able to understand
-     * Writes all the formatted information into a data.txt file for storage
-     * Will not write any information if the there are mistakes in the ArrayList information.
-     *
-     * @param list ArrayList of Tasks to be stored on data.txt
-     * @throws RoomShareException If there are parsing errors in the ArrayList.
-     */
-    public void writeFile(ArrayList<Task> list, String fileName) throws RoomShareException {
-        try {
-            FileWriter fw = new FileWriter(fileName);
-            BufferedWriter writer = new BufferedWriter(fw);
-            for (Task s : list) {
-                String out = "";
-                String type = String.valueOf(s.toString().charAt(1));
-                String isDone = s.getDone() ? "y" : "n";
-                String priority = s.getPriority().toString();
-                String description = s.getDescription();
-                String date = convertForStorage(s);
-                String recurrence = s.getRecurrenceSchedule().toString();
-                String user = s.getAssignee();
-                if (s instanceof Assignment) {
-                    out = type + "#" + isDone + "#"
-                            + priority + "#" + description + "#"
-                            + date + "#" + recurrence + "#"
-                            + user + "#" + "N" + "#"
-                            + "0" + "#" + "unDefined" + "#";
-                    // Saves sub-tasks
-                    if (!(((Assignment) s).getSubTasks() == null)) {
-                        ArrayList<String> subTasks = ((Assignment) s).getSubTasks();
-                        for (String subTask : subTasks) {
-                            out += subTask + ",";
-                        }
-                    }
-                    out += "#";
-                } else if (s instanceof Leave) {
-                    String leaveDate = convertForStorageLeave(s);
-                    out = type + "#" + isDone + "#"
-                            + priority + "#" + description + "#"
-                            + leaveDate + "#" + recurrence + "#"
-                            + user + "#" + "N" + "#"
-                            + "0" + "#" + "unDefined" + "#" + "#";
-                } else if (s instanceof Meeting) {
-                    if (((Meeting) s).isFixedDuration()) {
-                        String duration = ((Meeting) s).getDuration();
-                        String unit = ((Meeting) s).getTimeUnit().toString();
-                        out = type + "#" + isDone + "#"
-                                + priority + "#" + description + "#"
-                                + date + "#" + recurrence + "#"
-                                + user + "#" + "F" + "#"
-                                + duration + "#" + unit + "#" + "#";
-                    } else {
-                        out = type + "#" + isDone + "#"
-                                + priority + "#" + description + "#"
-                                + date + "#" + recurrence + "#"
-                                + user + "#" + "N" + "#"
-                                + "0" + "#" + "unDefined" + "#" + "#";
-                    }
-                }
-                writer.write(out);
-                writer.newLine();
-            }
-            writer.close();
-        } catch (IOException | ArrayIndexOutOfBoundsException e) {
-            throw new RoomShareException(ExceptionType.writeError);
-        }
     }
 
     /**

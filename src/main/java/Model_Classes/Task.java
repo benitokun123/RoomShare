@@ -5,6 +5,7 @@ import Enums.ExceptionType;
 import Enums.Priority;
 import Enums.RecurrenceScheduleType;
 
+import java.time.DayOfWeek;
 import java.util.Date;
 
 /**
@@ -25,7 +26,6 @@ public abstract class Task{
      * @param description Description of the task
      */
     public Task(String description, Date date) {
-
         this.description = description;
         this.isDone = false;
         this.isOverdue = false;
@@ -33,6 +33,19 @@ public abstract class Task{
         this.date = date;
         this.assignee = "everyone";
         this.recurrenceSchedule = RecurrenceScheduleType.none;
+    }
+
+    public Task(String description, boolean isDone, Date date,
+                Priority priority, String assignee, boolean hasRecurring,
+                boolean isOverdue, RecurrenceScheduleType recurrence) {
+        this.description = description;
+        this.isDone = isDone;
+        this.date = date;
+        this.priority = priority;
+        this.assignee = assignee;
+        this.hasRecurring = hasRecurring;
+        this.isOverdue = false;
+        this.recurrenceSchedule = recurrence;
     }
 
     /**

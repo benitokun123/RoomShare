@@ -1,5 +1,8 @@
 package Model_Classes;
 
+import Enums.Priority;
+import Enums.RecurrenceScheduleType;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -11,7 +14,6 @@ import java.util.Date;
 public class Leave extends Task {
     private Date from;
     private Date to;
-    private String user;
 
     /**
      * constructor for the leave class.
@@ -22,9 +24,15 @@ public class Leave extends Task {
      */
     public Leave(String description, String user, Date from, Date to) {
         super(description, from);
-        this.user = user;
+        super.setAssignee(user);
         this.from = from;
         this.to = to;
+    }
+
+    public Leave(String description, boolean isDone, Date date,
+                Priority priority, String assignee, boolean hasRecurring,
+                boolean isOverdue, RecurrenceScheduleType recurrence) {
+        super(description,isDone,date,priority,assignee,hasRecurring,isOverdue,recurrence);
     }
 
     /**
@@ -65,7 +73,7 @@ public class Leave extends Task {
      */
     @Override
     public String getAssignee() {
-        return this.user;
+        return super.getAssignee();
     }
 
     /**
@@ -75,7 +83,7 @@ public class Leave extends Task {
     @Override
     public String toString() {
         SimpleDateFormat f = new SimpleDateFormat("dd MMMM yyyy hh:mma");
-        return "[L] " + super.getDescription() + " (" + user + ")" + " (From: " + f.format(from) + " To: " + f.format(to) + ")";
+        return "[L] " + super.getDescription() + " (" + super.getAssignee() + ")" + " (From: " + f.format(from) + " To: " + f.format(to) + ")";
     }
 
     /**
@@ -83,7 +91,7 @@ public class Leave extends Task {
      * @param user name of user for the leave
      */
     public void setUser(String user) {
-        this.user = user;
+        super.setAssignee(user);
     }
 
     /**
@@ -91,7 +99,7 @@ public class Leave extends Task {
      * @return the name of the user for the leave
      */
     public String getUser() {
-        return this.user;
+        return super.getAssignee();
     }
 
 }
